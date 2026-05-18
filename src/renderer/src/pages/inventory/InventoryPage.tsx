@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 import type { Category, InventoryMovement, Product, Supplier } from '../../../../shared/types'
 import { stockAdjustmentSchema, stockEntrySchema } from '@/features/inventory/schemas'
 import { useAuth } from '@/shared/auth-context'
 
-type EntryFormState = {
+type EntryItemFormState = {
   productId: string
   quantity: string
+}
+
+type EntryFormState = {
+  items: EntryItemFormState[]
   note: string
 }
 
@@ -15,10 +19,9 @@ type AdjustmentFormState = {
   note: string
 }
 
-const defaultEntryForm: EntryFormState = {
+const defaultEntryItem: EntryItemFormState = {
   productId: '',
   quantity: '',
-  note: '',
 }
 
 const defaultAdjustmentForm: AdjustmentFormState = {
@@ -70,6 +73,22 @@ function getReasonLabel(reason: InventoryMovement['reason']) {
   }
 }
 
+function createEmptyEntryItem(): EntryItemFormState {
+  return { ...defaultEntryItem }
+}
+
+function createDefaultEntryForm(): EntryFormState {
+  return {
+    items: [createEmptyEntryItem()],
+    note: '',
+  }
+}
+
+function getProductLabel(product: Product) {
+  const variant = [product.size, product.color].filter(Boolean).join(' · ')
+  return `${product.name}${variant ? ` · ${variant}` : ''} · Stock ${product.stock}`
+}
+
 export function InventoryPage() {
   const { user } = useAuth()
   const [categories, setCategories] = useState<Category[]>([])
@@ -79,9 +98,10 @@ export function InventoryPage() {
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [supplierFilter, setSupplierFilter] = useState('all')
-  const [entryForm, setEntryForm] = useState<EntryFormState>(defaultEntryForm)
+  const [entryForm, setEntryForm] = useState<EntryFormState>(() => createDefaultEntryForm())
   const [adjustmentForm, setAdjustmentForm] = useState<AdjustmentFormState>(defaultAdjustmentForm)
   const [loading, setLoading] = useState(true)
+  const [submittingEntry, setSubmittingEntry] = useState(false)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -140,7 +160,37 @@ export function InventoryPage() {
     void loadData()
   }, [search, categoryFilter, supplierFilter])
 
-  const handleEntrySubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEntryItemChange = (index: number, field: keyof EntryItemFormState, value: string) => {
+    setEntryForm((current) => ({
+      ...current,
+      items: current.items.map((item, itemIndex) => (itemIndex === index ? { ...item, [field]: value } : item)),
+    }))
+  }
+
+  const handleAddEntryItem = () => {
+    setEntryForm((current) => ({
+      ...current,
+      items: [...current.items, createEmptyEntryItem()],
+    }))
+  }
+
+  const handleRemoveEntryItem = (index: number) => {
+    setEntryForm((current) => {
+      if (current.items.length === 1) {
+        return {
+          ...current,
+          items: [createEmptyEntryItem()],
+        }
+      }
+
+      return {
+        ...current,
+        items: current.items.filter((_, itemIndex) => itemIndex !== index),
+      }
+    })
+  }
+
+  const handleEntrySubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setFeedback(null)
     setError(null)
@@ -151,22 +201,31 @@ export function InventoryPage() {
       return
     }
 
-    const response = await window.api.inventory.createEntry({
-      items: [{ productId: Number(parsed.data.productId), quantity: Number(parsed.data.quantity) }],
-      note: parsed.data.note || null,
-    })
+    setSubmittingEntry(true)
 
-    if (!response.ok) {
-      setError(getErrorMessage(response.error))
-      return
+    try {
+      const response = await window.api.inventory.createEntry({
+        items: parsed.data.items.map((item) => ({
+          productId: Number(item.productId),
+          quantity: Number(item.quantity),
+        })),
+        note: parsed.data.note || null,
+      })
+
+      if (!response.ok) {
+        setError(getErrorMessage(response.error))
+        return
+      }
+
+      setEntryForm(createDefaultEntryForm())
+      setFeedback(`Se registraron ${response.data.processedCount} producto${response.data.processedCount === 1 ? '' : 's'} y el stock fue actualizado.`)
+      await loadData()
+    } finally {
+      setSubmittingEntry(false)
     }
-
-    setEntryForm(defaultEntryForm)
-    setFeedback('Entrada registrada y stock actualizado.')
-    await loadData()
   }
 
-  const handleAdjustmentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAdjustmentSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setFeedback(null)
     setError(null)
@@ -212,30 +271,77 @@ export function InventoryPage() {
             <p className="mt-1 text-sm text-slate-400">Sumá stock cuando llega reposición. Cada movimiento deja huella.</p>
 
             <form className="mt-5 space-y-3" onSubmit={handleEntrySubmit}>
-              <label className="block space-y-2 text-sm text-slate-300">
-                <span>Producto</span>
-                <select value={entryForm.productId} onChange={(event) => setEntryForm((current) => ({ ...current, productId: event.target.value }))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400">
-                  <option value="">Seleccioná un producto</option>
-                  {products.map((product) => (
-                    <option key={product.id} value={product.id}>
-                      {product.name} · Stock {product.stock}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="space-y-3">
+                {entryForm.items.map((item, index) => {
+                  const selectedProductIds = entryForm.items
+                    .map((entryItem, entryIndex) => (entryIndex === index ? null : entryItem.productId))
+                    .filter((productId): productId is string => Boolean(productId))
 
-              <label className="block space-y-2 text-sm text-slate-300">
-                <span>Cantidad</span>
-                <input value={entryForm.quantity} onChange={(event) => setEntryForm((current) => ({ ...current, quantity: event.target.value }))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400" placeholder="12" />
-              </label>
+                  return (
+                    <div key={`entry-item-${index}`} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-medium text-white">Producto {index + 1}</p>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEntryItem(index)}
+                          className="rounded-xl border border-slate-700 px-3 py-2 text-xs text-slate-200 transition hover:bg-slate-800"
+                        >
+                          {entryForm.items.length === 1 ? 'Limpiar' : 'Quitar'}
+                        </button>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_120px]">
+                        <label className="block space-y-2 text-sm text-slate-300">
+                          <span>Producto</span>
+                          <select
+                            value={item.productId}
+                            onChange={(event) => handleEntryItemChange(index, 'productId', event.target.value)}
+                            className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+                          >
+                            <option value="">Seleccioná un producto</option>
+                            {products.map((product) => {
+                              const isSelectedInAnotherRow = selectedProductIds.includes(String(product.id))
+
+                              return (
+                                <option key={product.id} value={product.id} disabled={isSelectedInAnotherRow}>
+                                  {getProductLabel(product)}
+                                </option>
+                              )
+                            })}
+                          </select>
+                        </label>
+
+                        <label className="block space-y-2 text-sm text-slate-300">
+                          <span>Cantidad</span>
+                          <input
+                            value={item.quantity}
+                            onChange={(event) => handleEntryItemChange(index, 'quantity', event.target.value)}
+                            inputMode="numeric"
+                            className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+                            placeholder="12"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddEntryItem}
+                className="w-full rounded-2xl border border-slate-700 px-4 py-3 text-sm font-medium text-slate-100 transition hover:bg-slate-800"
+              >
+                + Agregar otro producto
+              </button>
 
               <label className="block space-y-2 text-sm text-slate-300">
                 <span>Referencia / nota</span>
                 <textarea value={entryForm.note} onChange={(event) => setEntryForm((current) => ({ ...current, note: event.target.value }))} className="min-h-24 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400" placeholder="Ej: Remito 328 / proveedor mayorista" />
               </label>
 
-              <button type="submit" className="w-full rounded-2xl bg-emerald-500 px-4 py-3 font-medium text-slate-950 transition hover:bg-emerald-400">
-                Registrar entrada
+              <button type="submit" disabled={submittingEntry} className="w-full rounded-2xl bg-emerald-500 px-4 py-3 font-medium text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70">
+                {submittingEntry ? 'Registrando entrada...' : 'Registrar entrada'}
               </button>
             </form>
           </div>

@@ -7,6 +7,7 @@ import { registerOffersHandlers } from './offers'
 import { registerReportsHandlers } from './reports'
 import { registerSalesHandlers } from './sales'
 import { registerSystemHandlers } from './system'
+import { registerUserHandlers } from './users'
 
 export function registerIpcHandlers() {
   registerAuditHandlers()
@@ -18,4 +19,5 @@ export function registerIpcHandlers() {
   registerReportsHandlers()
   registerSalesHandlers()
   registerSystemHandlers()
+  registerUserHandlers()
 }

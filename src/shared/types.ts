@@ -17,6 +17,40 @@ export type SessionUser = {
   mustChangePassword: boolean
 }
 
+export type UserAccount = {
+  id: number
+  username: string
+  name: string
+  role: UserRole
+  active: boolean
+  mustChangePassword: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export type CreateUserInput = {
+  username: string
+  name: string
+  password: string
+  role: UserRole
+}
+
+export type UpdateUserInput = {
+  id: number
+  name: string
+  role: UserRole
+}
+
+export type ResetUserPasswordInput = {
+  id: number
+  newPassword: string
+}
+
+export type SetUserActiveInput = {
+  id: number
+  active: boolean
+}
+
 export type ApiSuccess<T> = {
   ok: true
   data: T

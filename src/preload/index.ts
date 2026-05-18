@@ -7,6 +7,7 @@ import type {
   Category,
   ChangePasswordInput,
   CheckoutInput,
+  CreateUserInput,
   CreateOfferInput,
   CreateCustomerInput,
   CreateCategoryInput,
@@ -27,18 +28,22 @@ import type {
   Product,
   ProductFilters,
   DatabaseTransferResult,
+  ResetUserPasswordInput,
   SaleTicket,
   SalesReport,
   SalesReportFilters,
   SessionUser,
   SetProductActiveInput,
   SetSupplierActiveInput,
+  SetUserActiveInput,
   Supplier,
   UpdateOfferInput,
   UpdateCustomerInput,
   UpdateCategoryInput,
   UpdateProductInput,
   UpdateSupplierInput,
+  UpdateUserInput,
+  UserAccount,
 } from '../shared/types'
 
 const api = {
@@ -48,6 +53,15 @@ const api = {
     currentUser: () => ipcRenderer.invoke(IPC.auth.currentUser) as Promise<ApiResponse<SessionUser | null>>,
     changePassword: (input: ChangePasswordInput) =>
       ipcRenderer.invoke(IPC.auth.changePassword, input) as Promise<ApiResponse<SessionUser>>,
+  },
+  users: {
+    list: () => ipcRenderer.invoke(IPC.users.list) as Promise<ApiResponse<UserAccount[]>>,
+    create: (input: CreateUserInput) => ipcRenderer.invoke(IPC.users.create, input) as Promise<ApiResponse<UserAccount>>,
+    update: (input: UpdateUserInput) => ipcRenderer.invoke(IPC.users.update, input) as Promise<ApiResponse<UserAccount>>,
+    resetPassword: (input: ResetUserPasswordInput) =>
+      ipcRenderer.invoke(IPC.users.resetPassword, input) as Promise<ApiResponse<UserAccount>>,
+    setActive: (input: SetUserActiveInput) =>
+      ipcRenderer.invoke(IPC.users.setActive, input) as Promise<ApiResponse<UserAccount>>,
   },
   catalog: {
     listCategories: () => ipcRenderer.invoke(IPC.catalog.listCategories) as Promise<ApiResponse<Category[]>>,

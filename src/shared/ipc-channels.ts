@@ -5,6 +5,13 @@ export const IPC = {
     currentUser: 'auth:current-user',
     changePassword: 'auth:change-password',
   },
+  users: {
+    list: 'users:list',
+    create: 'users:create',
+    update: 'users:update',
+    resetPassword: 'users:reset-password',
+    setActive: 'users:set-active',
+  },
   catalog: {
     listCategories: 'catalog:categories:list',
     createCategory: 'catalog:categories:create',

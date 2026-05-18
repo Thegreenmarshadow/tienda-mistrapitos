@@ -1,19 +1,40 @@
 import { z } from 'zod'
 
-export const stockEntrySchema = z.object({
+const stockEntryItemSchema = z.object({
   productId: z.string().trim().min(1, 'Seleccioná un producto para ingresar stock.'),
   quantity: z.string().trim().min(1, 'Indicá la cantidad que entra.'),
+})
+
+export const stockEntrySchema = z.object({
+  items: z.array(stockEntryItemSchema).min(1, 'Agregá al menos un producto para registrar entrada.'),
   note: z.string().trim().max(240, 'La referencia no puede superar los 240 caracteres.').optional().or(z.literal('')),
 }).superRefine((value, context) => {
-  const quantity = Number(value.quantity)
+  const selectedProducts = new Set<string>()
 
-  if (!Number.isInteger(quantity) || quantity <= 0) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['quantity'],
-      message: 'La cantidad de entrada debe ser un entero positivo.',
-    })
-  }
+  value.items.forEach((item, index) => {
+    const quantity = Number(item.quantity)
+
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['items', index, 'quantity'],
+        message: 'La cantidad de entrada debe ser un entero positivo.',
+      })
+    }
+
+    if (item.productId && selectedProducts.has(item.productId)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['items', index, 'productId'],
+        message: 'No repitas el mismo producto en una sola entrada.',
+      })
+      return
+    }
+
+    if (item.productId) {
+      selectedProducts.add(item.productId)
+    }
+  })
 })
 
 export const stockAdjustmentSchema = z.object({

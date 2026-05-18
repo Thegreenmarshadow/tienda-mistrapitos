@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { LoginPage } from '@/pages/login/LoginPage'
 import { ChangePasswordPage } from '@/pages/login/ChangePasswordPage'
-import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { CatalogPage } from '@/pages/catalog/CatalogPage'
 import { SuppliersPage } from '@/pages/catalog/SuppliersPage'
 import { CustomersPage } from '@/pages/customers/CustomersPage'
@@ -10,6 +9,7 @@ import { OffersPage } from '@/pages/offers/OffersPage'
 import { PosPage } from '@/pages/pos/PosPage'
 import { ReportsPage } from '@/pages/reports/ReportsPage'
 import { AuditPage } from '@/pages/audit/AuditPage'
+import { UsersPage } from '@/pages/users/UsersPage'
 import { useAuth } from '@/shared/auth-context'
 import { AppLayout } from '@/shared/layout'
 import { ProtectedRoute } from '@/shared/protected-route'
@@ -43,7 +43,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route element={<RoleRoute allowedRoles={['admin']} />}>
             <Route path="/dashboard" element={<Navigate to="/reports" replace />} />
-            <Route path="/users" element={<PlaceholderPage title="Gestión de usuarios" description="El shell ya respeta roles y navegación. La pantalla queda lista para implementar ABM de usuarios en la siguiente iteración." bullets={["Crear usuarios admin, vendor y stock", "Resetear contraseñas", "Desactivar usuarios sin romper el último admin"]} />} />
+            <Route path="/users" element={<UsersPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/audit" element={<AuditPage />} />
           </Route>
