@@ -122,6 +122,7 @@ Las features están organizadas por módulo. Cada una mapea a uno o más RFs de 
 - Pantalla de login (usuario + contraseña).
 - Sesión en memoria del renderer (no JWT, no cookies — es local).
 - Cerrar sesión vuelve al login.
+- Si el vendedor tiene productos en el carrito del POS sin confirmar, se pide confirmación antes de salir.
 - Admin puede crear/editar/desactivar usuarios y asignar rol.
 - Contraseñas con bcrypt en BD.
 
@@ -129,9 +130,9 @@ Las features están organizadas por módulo. Cada una mapea a uno o más RFs de 
 
 ### 7.2 Productos (RF-01)
 
-- ABM de productos con: nombre, descripción, categoría, talla, color, precio, stock actual, proveedor.
-- Categorías predefinidas (camisetas, pantalones, accesorios, etc.) editables por Admin.
-- Búsqueda por nombre/categoría.
+- ABM de productos con: nombre, SKU/código, descripción, categoría, talla, color, precio, stock actual, proveedor.
+- Categorías administrables desde el propio sistema; el seed inicial no crea categorías por defecto.
+- Búsqueda por nombre/categoría/SKU.
 
 **Out:** variantes complejas (matriz talla×color como un solo producto padre — en MVP cada combinación es un producto). Imágenes opcionales en una fase posterior.
 
@@ -156,13 +157,14 @@ Las features están organizadas por módulo. Cada una mapea a uno o más RFs de 
 - Buscar cliente por nombre/teléfono.
 - Vincular cliente a una venta (opcional — se permite venta sin cliente).
 - Ver historial de compras de un cliente.
+- Abrir el detalle histórico de una venta desde el historial del cliente.
 
 **Out:** programa de puntos, segmentación, marketing.
 
 ### 7.6 Ventas / POS (RF-05)
 
 - Pantalla de POS optimizada para vendedor:
-  - Buscar producto por nombre, agregarlo al carrito.
+  - Buscar producto por nombre o SKU, agregarlo al carrito.
   - Modificar cantidad, eliminar línea.
   - Vincular cliente (opcional).
   - Elegir método de pago: efectivo / tarjeta / transferencia.
@@ -190,10 +192,10 @@ Las features están organizadas por módulo. Cada una mapea a uno o más RFs de 
 
 ### 7.9 Auditoría (RF-09)
 
-- Cada operación crítica (venta, alta/edición/eliminación de producto, ajuste de stock, alta de usuario) escribe un registro en `audit_log` con: usuario, acción, entidad, fecha/hora, payload resumido (JSON).
+- Cada operación crítica (venta, alta/edición/eliminación de producto, ajuste de stock, alta de usuario) escribe un registro en `audit_log` con: usuario, acción, entidad, fecha/hora, `terminalId` local y payload resumido (JSON).
 - Vista para Admin: listar log con filtros por usuario y fecha.
 
-**Out:** RF-10 (ID de terminal) — no aplica, mono-PC.
+**Out:** RF-10 como soporte multi-terminal por red — no aplica, mono-PC. Como apoyo de trazabilidad local, el log sí conserva `terminalId` de la máquina actual.
 
 ### 7.10 Utilidades del sistema
 
@@ -211,13 +213,13 @@ Tablas (Drizzle schema). Todas con `id` autoincremental y `created_at` / `update
 | `users` | username (unique), password_hash, name, role (`admin`/`vendor`/`stock`), active |
 | `categories` | name (unique) |
 | `suppliers` | name, phone, email |
-| `products` | name, description, category_id (FK), size, color, price, stock, supplier_id (FK), active |
+| `products` | name, sku (unique, nullable), description, category_id (FK), size, color, price, stock, supplier_id (FK), active |
 | `offers` | product_id (FK), discount_percent, start_at, end_at |
 | `customers` | name, phone, email, address |
 | `sales` | customer_id (FK, nullable), user_id (FK), total, payment_method, created_at |
 | `sale_items` | sale_id (FK), product_id (FK), quantity, unit_price, discount_percent |
 | `stock_movements` | product_id (FK), user_id (FK), delta (+/-), reason (`sale`/`entry`/`adjustment`), reference_id (nullable, FK lógica a sale) |
-| `audit_log` | user_id (FK), action, entity, entity_id, payload (JSON), created_at |
+| `audit_log` | user_id (FK), action, entity, entity_id, terminal_id, payload (JSON), created_at |
 
 **Reglas:**
 - Todas las operaciones que tocan `stock` o `sales` corren en una **transacción**.

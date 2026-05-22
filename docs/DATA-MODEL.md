@@ -125,6 +125,7 @@ Productos del catálogo.
 |-------|------|------------|-------------|
 | `id` | INTEGER | PK | |
 | `name` | TEXT | NOT NULL | |
+| `sku` | TEXT | NULL, UNIQUE | Código opcional del producto |
 | `description` | TEXT | NULL | |
 | `category_id` | INTEGER | NOT NULL, FK → categories.id | |
 | `supplier_id` | INTEGER | NULL, FK → suppliers.id | Puede no tener proveedor cargado |
@@ -141,6 +142,7 @@ Productos del catálogo.
 - `INDEX idx_products_supplier ON products(supplier_id)`
 - `INDEX idx_products_active ON products(active)`
 - `INDEX idx_products_name ON products(name)` — para búsqueda
+- `UNIQUE INDEX idx_products_sku_unique ON products(sku)` — para evitar códigos repetidos
 
 **Reglas:**
 - `stock` solo se modifica vía servicios que también escriben `stock_movements`. Nunca SET directo desde un handler.
@@ -280,13 +282,13 @@ Registro de operaciones críticas.
 | `action` | TEXT | NOT NULL | Ej: `product.create`, `sale.checkout`, `user.deactivate` |
 | `entity` | TEXT | NOT NULL | Ej: `product`, `sale`, `user` |
 | `entity_id` | INTEGER | NULL | ID del recurso afectado |
-| `payload` | TEXT | NULL | JSON serializado con datos relevantes |
+| `terminal_id` | TEXT | NOT NULL | Identificador local de la máquina actual |
+| `payload` | TEXT | NOT NULL | JSON serializado con datos relevantes |
 | `created_at` | TEXT | DEFAULT CURRENT_TIMESTAMP | |
 
 **Índices:**
-- `INDEX idx_audit_user ON audit_log(user_id)`
-- `INDEX idx_audit_date ON audit_log(created_at)`
-- `INDEX idx_audit_entity ON audit_log(entity, entity_id)`
+- `INDEX idx_audit_log_user ON audit_log(user_id)`
+- `INDEX idx_audit_log_entity ON audit_log(entity, entity_id)`
 
 **Reglas:**
 - Append-only. Se escribe desde el servicio, idealmente dentro de la misma transacción que la operación auditada.
@@ -333,6 +335,7 @@ export const suppliers = sqliteTable('suppliers', {
 export const products = sqliteTable('products', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
+  sku: text('sku').unique(),
   description: text('description'),
   categoryId: integer('category_id').notNull().references(() => categories.id),
   supplierId: integer('supplier_id').references(() => suppliers.id),
@@ -348,6 +351,7 @@ export const products = sqliteTable('products', {
   supplierIdx: index('idx_products_supplier').on(t.supplierId),
   activeIdx: index('idx_products_active').on(t.active),
   nameIdx: index('idx_products_name').on(t.name),
+  skuIdx: uniqueIndex('idx_products_sku_unique').on(t.sku),
 }));
 
 export const offers = sqliteTable('offers', {
@@ -422,12 +426,12 @@ export const auditLog = sqliteTable('audit_log', {
   action: text('action').notNull(),
   entity: text('entity').notNull(),
   entityId: integer('entity_id'),
-  payload: text('payload'),
+  terminalId: text('terminal_id').notNull().default('unknown-terminal'),
+  payload: text('payload').notNull(),
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 }, (t) => ({
-  userIdx: index('idx_audit_user').on(t.userId),
-  dateIdx: index('idx_audit_date').on(t.createdAt),
-  entityIdx: index('idx_audit_entity').on(t.entity, t.entityId),
+  userIdx: index('idx_audit_log_user').on(t.userId),
+  entityIdx: index('idx_audit_log_entity').on(t.entity, t.entityId),
 }));
 ```
 
@@ -502,7 +506,7 @@ Generada con `drizzle-kit generate`. El primer `0000_initial.sql` debe contener:
 
 | Concepto | Razón |
 |----------|-------|
-| `terminals` / `terminal_id` en sales | RF-10 fuera de alcance (mono-PC) |
+| `terminals` / `terminal_id` en sales | RF-10 multi-terminal sigue fuera de alcance; la trazabilidad local se resuelve con `terminal_id` en `audit_log` |
 | `product_variants` (matriz talla×color) | Cada combinación es un producto separado en MVP |
 | `images` / `product_images` | Sin soporte de imágenes en MVP |
 | `returns` / `voided` flag | Sin devoluciones en MVP |

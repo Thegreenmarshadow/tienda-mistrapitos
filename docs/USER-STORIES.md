@@ -178,7 +178,8 @@ Las historias mapean a los RFs de la ERS y a las features del PRD.
 **AC:**
 - Desde la búsqueda de cliente, abrir su ficha.
 - Lista de ventas pasadas con fecha, total, método de pago.
-- Click en una venta abre el detalle con sus líneas.
+- Botón o acción explícita para abrir el detalle de una venta histórica.
+- El detalle muestra líneas, cantidades, precio unitario, descuento, subtotal y total.
 
 ---
 
@@ -197,7 +198,7 @@ Las historias mapean a los RFs de la ERS y a las features del PRD.
 > **Como** almacenista **quiero** dar de alta y editar productos **para** mantener el catálogo al día.
 
 **AC:**
-- Formulario con: nombre, descripción, categoría, talla, color, precio, stock inicial, proveedor.
+- Formulario con: nombre, SKU/código, descripción, categoría, talla, color, precio, stock inicial, proveedor.
 - Validaciones: nombre obligatorio, precio > 0, stock >= 0.
 - Edición no permite tocar `stock` directamente (eso va por entradas/ajustes).
 - Desactivar producto en lugar de borrar (mantiene historial de ventas intacto).
@@ -295,4 +296,4 @@ Estos no son historias en sí, pero son casos que la implementación debe maneja
 | RF-07 (consultas) | US-V8, US-S6, US-A5 |
 | RF-08 (login) | US-A1, US-V1, US-X1 |
 | RF-09 (auditoría) | US-A6 (+ todas las US escriben al log) |
-| RF-10 (terminal) | **N/A — fuera de alcance MVP** |
+| RF-10 (terminal) | **N/A como multi-terminal**; se conserva `terminalId` local en auditoría para trazabilidad mono-PC |
