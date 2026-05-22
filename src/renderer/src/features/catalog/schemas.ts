@@ -16,6 +16,7 @@ export const supplierFormSchema = z.object({
 
 export const productFormSchema = z.object({
   name: z.string().trim().min(1, 'Ingresá un nombre').max(160, 'Máximo 160 caracteres'),
+  sku: z.string().trim().max(64, 'Máximo 64 caracteres').optional(),
   description: z.string().trim().optional(),
   categoryId: z.string().min(1, 'Seleccioná una categoría'),
   supplierId: z.string().optional(),

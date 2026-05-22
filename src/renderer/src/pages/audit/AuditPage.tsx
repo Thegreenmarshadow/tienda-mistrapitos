@@ -123,7 +123,7 @@ export function AuditPage() {
                     <span className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300">{item.entity}{item.entityId ? ` #${item.entityId}` : ''}</span>
                   </div>
                   <p className="mt-2 text-sm text-slate-300">{item.user.name} (@{item.user.username})</p>
-                  <p className="text-sm text-slate-400">{formatDate(item.createdAt)}</p>
+                  <p className="text-sm text-slate-400">{formatDate(item.createdAt)} · Terminal: {item.terminalId}</p>
                 </div>
               </div>
               <pre className="mt-4 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/80 p-4 text-xs text-slate-300">{payloadPreview(item.payload)}</pre>

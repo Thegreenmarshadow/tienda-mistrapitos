@@ -33,6 +33,7 @@ export const suppliers = sqliteTable('suppliers', {
 export const products = sqliteTable('products', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
+  sku: text('sku').unique(),
   description: text('description'),
   categoryId: integer('category_id')
     .notNull()
@@ -116,6 +117,7 @@ export const auditLog = sqliteTable('audit_log', {
   action: text('action').notNull(),
   entity: text('entity').notNull(),
   entityId: integer('entity_id'),
+  terminalId: text('terminal_id').notNull().default('unknown-terminal'),
   payload: text('payload').notNull(),
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 })

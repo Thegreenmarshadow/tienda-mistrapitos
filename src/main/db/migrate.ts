@@ -1,5 +1,11 @@
 import { getSqlite } from './client'
 
+function hasColumn(tableName: string, columnName: string) {
+  const sqlite = getSqlite()
+  const columns = sqlite.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{ name: string }>
+  return columns.some((column) => column.name === columnName)
+}
+
 export function migrateDatabase() {
   const sqlite = getSqlite()
 
@@ -63,6 +69,7 @@ export function migrateDatabase() {
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
+      sku TEXT,
       description TEXT,
       category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
       supplier_id INTEGER REFERENCES suppliers(id) ON DELETE RESTRICT,
@@ -79,6 +86,7 @@ export function migrateDatabase() {
     CREATE INDEX IF NOT EXISTS idx_products_supplier ON products(supplier_id);
     CREATE INDEX IF NOT EXISTS idx_products_active ON products(active);
     CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku_unique ON products(sku);
 
     CREATE TRIGGER IF NOT EXISTS products_set_updated_at
     AFTER UPDATE ON products
@@ -171,6 +179,7 @@ export function migrateDatabase() {
       action TEXT NOT NULL,
       entity TEXT NOT NULL,
       entity_id INTEGER,
+      terminal_id TEXT NOT NULL DEFAULT 'unknown-terminal',
       payload TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
@@ -178,4 +187,14 @@ export function migrateDatabase() {
     CREATE INDEX IF NOT EXISTS idx_audit_log_user ON audit_log(user_id);
     CREATE INDEX IF NOT EXISTS idx_audit_log_entity ON audit_log(entity, entity_id);
   `)
+
+  if (!hasColumn('audit_log', 'terminal_id')) {
+    sqlite.exec("ALTER TABLE audit_log ADD COLUMN terminal_id TEXT NOT NULL DEFAULT 'unknown-terminal';")
+  }
+
+  if (!hasColumn('products', 'sku')) {
+    sqlite.exec('ALTER TABLE products ADD COLUMN sku TEXT;')
+  }
+
+  sqlite.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku_unique ON products(sku);')
 }

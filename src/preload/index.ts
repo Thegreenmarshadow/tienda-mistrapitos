@@ -99,6 +99,8 @@ const api = {
   sales: {
     searchProducts: (search?: string) =>
       ipcRenderer.invoke(IPC.sales.searchProducts, { search }) as Promise<ApiResponse<PosProduct[]>>,
+    getTicket: (saleId: number) =>
+      ipcRenderer.invoke(IPC.sales.getTicket, { saleId }) as Promise<ApiResponse<SaleTicket>>,
     checkout: (input: CheckoutInput) => ipcRenderer.invoke(IPC.sales.checkout, input) as Promise<ApiResponse<SaleTicket>>,
   },
   offers: {

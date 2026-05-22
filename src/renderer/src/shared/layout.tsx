@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import type { UserRole } from '../../../shared/types'
 import { useAuth } from './auth-context'
+import { usePosDraft } from './pos-draft-context'
 
 type NavItem = {
   to: string
@@ -34,6 +35,7 @@ const navByRole: Record<UserRole, NavItem[]> = {
 
 export function AppLayout() {
   const { user, logout } = useAuth()
+  const { hasPendingCart, clearPendingCart } = usePosDraft()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -42,7 +44,16 @@ export function AppLayout() {
   }
 
   const handleLogout = async () => {
+    if (hasPendingCart) {
+      const confirmed = window.confirm('Tenés productos en el carrito del POS sin confirmar. ¿Seguro que querés cerrar sesión?')
+
+      if (!confirmed) {
+        return
+      }
+    }
+
     await logout()
+    clearPendingCart()
     navigate('/login', { replace: true })
   }
 

@@ -1,7 +1,7 @@
 import { and, asc, eq, inArray, like, or } from 'drizzle-orm'
 import type { CheckoutInput, PosProduct, SaleTicket } from '../../shared/types'
 import { getDb } from '../db/client'
-import { categories, customers, products, saleItems, sales, stockMovements } from '../db/schema'
+import { categories, customers, products, saleItems, sales, stockMovements, users } from '../db/schema'
 import { requireAuth, requireRole } from '../session'
 import { writeAuditLog } from './audit.service'
 import { getActiveOfferMap } from './offers.service'
@@ -40,6 +40,7 @@ export const salesService = {
       .select({
         id: products.id,
         name: products.name,
+        sku: products.sku,
         categoryName: categories.name,
         size: products.size,
         color: products.color,
@@ -50,7 +51,7 @@ export const salesService = {
       .innerJoin(categories, eq(categories.id, products.categoryId))
       .where(
         term
-          ? and(eq(products.active, true), or(like(products.name, term), like(categories.name, term)))
+          ? and(eq(products.active, true), or(like(products.name, term), like(categories.name, term), like(products.sku, term)))
           : eq(products.active, true),
       )
       .orderBy(asc(products.name), asc(products.id))
@@ -214,5 +215,76 @@ export const salesService = {
         })),
       }
     })
+  },
+
+  async getTicket(saleId: number): Promise<SaleTicket> {
+    requireSalesAccess()
+    const db = getDb()
+
+    const sale = await db
+      .select({
+        saleId: sales.id,
+        createdAt: sales.createdAt,
+        paymentMethod: sales.paymentMethod,
+        totalInCents: sales.total,
+        sellerId: users.id,
+        sellerName: users.name,
+        customerId: customers.id,
+        customerName: customers.name,
+        customerPhone: customers.phone,
+        customerEmail: customers.email,
+      })
+      .from(sales)
+      .innerJoin(users, eq(users.id, sales.userId))
+      .leftJoin(customers, eq(customers.id, sales.customerId))
+      .where(eq(sales.id, saleId))
+      .get()
+
+    if (!sale) {
+      throw new Error('sale_not_found')
+    }
+
+    const items = await db
+      .select({
+        productId: saleItems.productId,
+        productName: products.name,
+        size: products.size,
+        color: products.color,
+        quantity: saleItems.quantity,
+        unitPriceInCents: saleItems.unitPrice,
+        discountPercent: saleItems.discountPercent,
+        subtotalInCents: saleItems.subtotal,
+      })
+      .from(saleItems)
+      .innerJoin(products, eq(products.id, saleItems.productId))
+      .where(eq(saleItems.saleId, saleId))
+      .orderBy(asc(saleItems.id))
+
+    return {
+      saleId: sale.saleId,
+      createdAt: sale.createdAt,
+      paymentMethod: sale.paymentMethod,
+      totalInCents: sale.totalInCents,
+      seller: {
+        id: sale.sellerId,
+        name: sale.sellerName,
+      },
+      customer: sale.customerId
+        ? {
+            id: sale.customerId,
+            name: sale.customerName ?? 'Consumidor final',
+            phone: sale.customerPhone,
+            email: sale.customerEmail,
+          }
+        : null,
+      items: items.map((item) => ({
+        productId: item.productId,
+        productName: toProductLabel(item),
+        quantity: item.quantity,
+        unitPriceInCents: item.unitPriceInCents,
+        discountPercent: item.discountPercent,
+        subtotalInCents: item.subtotalInCents,
+      })),
+    }
   },
 }

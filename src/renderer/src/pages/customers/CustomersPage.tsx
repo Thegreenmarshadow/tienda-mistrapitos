@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { Customer, CustomerSaleSummary } from '../../../../shared/types'
+import type { Customer, CustomerSaleSummary, SaleTicket } from '../../../../shared/types'
 import { customerFormSchema } from '@/features/customers/schemas'
+import { SaleTicketView } from '@/components/sales/SaleTicketView'
 
 type CustomerFormState = {
   name: string
@@ -37,6 +38,8 @@ function getErrorMessage(error: string) {
       return 'Hay datos inválidos en el formulario del cliente.'
     case 'customer_not_found':
       return 'El cliente ya no existe. Recargá la lista.'
+    case 'sale_not_found':
+      return 'La venta que intentaste abrir ya no existe.'
     case 'forbidden':
       return 'Tu rol no tiene permiso para gestionar clientes.'
     case 'unauthorized':
@@ -53,6 +56,8 @@ export function CustomersPage() {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [customerForm, setCustomerForm] = useState<CustomerFormState>(defaultCustomerForm)
   const [search, setSearch] = useState('')
+  const [selectedSaleTicket, setSelectedSaleTicket] = useState<SaleTicket | null>(null)
+  const [loadingTicket, setLoadingTicket] = useState(false)
   const [loading, setLoading] = useState(true)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -78,6 +83,7 @@ export function CustomersPage() {
 
     const customersData = customersResponse.data
     setCustomers(customersData)
+    setSelectedSaleTicket(null)
 
     const customerIdToLoad = nextSelectedCustomerId ?? selectedCustomerId ?? customersData[0]?.id ?? null
     setSelectedCustomerId(customerIdToLoad)
@@ -159,6 +165,22 @@ export function CustomersPage() {
     resetForm()
     setFeedback(editingCustomer ? 'Cliente actualizado.' : 'Cliente creado.')
     await loadCustomers(selected)
+  }
+
+  const handleOpenTicket = async (saleId: number) => {
+    setError(null)
+    setFeedback(null)
+    setLoadingTicket(true)
+
+    const response = await window.api.sales.getTicket(saleId)
+    setLoadingTicket(false)
+
+    if (!response.ok) {
+      setError(getErrorMessage(response.error))
+      return
+    }
+
+    setSelectedSaleTicket(response.data)
   }
 
   return (
@@ -281,24 +303,58 @@ export function CustomersPage() {
               <div className="mt-5 space-y-3">
                 {history.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Este cliente todavía no tiene compras registradas.</p> : null}
 
-                {history.map((sale) => (
-                  <article key={sale.saleId} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <h4 className="font-medium text-white">Venta #{sale.saleId}</h4>
+                 {history.map((sale) => (
+                   <article key={sale.saleId} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                     <div className="flex flex-wrap items-center justify-between gap-3">
+                       <div>
+                         <h4 className="font-medium text-white">Venta #{sale.saleId}</h4>
                         <p className="mt-1 text-sm text-slate-400">
                           {formatDate(sale.createdAt)} · {sale.itemCount} ítem{sale.itemCount === 1 ? '' : 's'} · {sale.paymentMethod}
                         </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-slate-300">{formatCurrency(sale.totalInCents)}</span>
+                          <button
+                            type="button"
+                            onClick={() => void handleOpenTicket(sale.saleId)}
+                            className="rounded-xl border border-slate-700 px-3 py-2 text-xs text-slate-200 hover:bg-slate-800"
+                          >
+                            Ver detalle
+                          </button>
+                        </div>
                       </div>
-                      <span className="text-sm text-slate-300">{formatCurrency(sale.totalInCents)}</span>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            ) : null}
+                    </article>
+                  ))}
+                </div>
+              ) : null}
           </div>
         </section>
       </div>
+
+      {selectedSaleTicket ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto">
+            <div className="mb-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedSaleTicket(null)}
+                className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-100 hover:bg-slate-800"
+              >
+                Cerrar detalle
+              </button>
+            </div>
+            <SaleTicketView ticket={selectedSaleTicket} />
+          </div>
+        </div>
+      ) : null}
+
+      {loadingTicket ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 px-6 py-5 text-sm text-slate-200">
+            Cargando detalle de venta...
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

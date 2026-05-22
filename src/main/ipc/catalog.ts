@@ -26,6 +26,18 @@ const nullableTrimmedText = z
     return normalized.length > 0 ? normalized : null
   })
 
+const nullableSkuText = z
+  .union([z.string(), z.null(), z.undefined()])
+  .transform((value) => {
+    if (typeof value !== 'string') {
+      return null
+    }
+
+    const normalized = value.trim().toUpperCase()
+    return normalized.length > 0 ? normalized : null
+  })
+  .refine((value) => !value || value.length <= 64, 'invalid_sku')
+
 const CategorySchema = z.object({
   name: z.string().trim().min(1).max(80),
 })
@@ -55,6 +67,7 @@ const SetSupplierActiveSchema = z.object({
 
 const ProductSchema = z.object({
   name: z.string().trim().min(1).max(160),
+  sku: nullableSkuText,
   description: nullableTrimmedText,
   categoryId: z.number().int().positive(),
   supplierId: z.number().int().positive().nullable().optional(),

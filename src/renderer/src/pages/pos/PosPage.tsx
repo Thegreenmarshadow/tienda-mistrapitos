@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import type { Customer, PaymentMethod, PosProduct, SaleTicket } from '../../../../shared/types'
 import { quickCustomerSchema } from '@/features/sales/schemas'
+import { usePosDraft } from '@/shared/pos-draft-context'
+import { SaleTicketView } from '@/components/sales/SaleTicketView'
 
 type CartItem = {
   product: PosProduct
@@ -73,6 +75,7 @@ function getErrorMessage(error: string) {
 }
 
 export function PosPage() {
+  const { setHasPendingCart } = usePosDraft()
   const [products, setProducts] = useState<PosProduct[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
   const [productSearch, setProductSearch] = useState('')
@@ -158,6 +161,12 @@ export function PosPage() {
 
     return () => window.clearTimeout(timeoutId)
   }, [customerSearch])
+
+  useEffect(() => {
+    setHasPendingCart(cart.length > 0)
+  }, [cart.length, setHasPendingCart])
+
+  useEffect(() => () => setHasPendingCart(false), [setHasPendingCart])
 
   const clearSale = () => {
     setCart([])
@@ -288,39 +297,7 @@ export function PosPage() {
         </section>
 
         <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-800 pb-5">
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Venta #{ticket.saleId}</p>
-              <h3 className="mt-2 text-2xl font-semibold text-white">Mis Trapitos POS</h3>
-              <p className="mt-1 text-sm text-slate-400">{formatDate(ticket.createdAt)} · {getPaymentLabel(ticket.paymentMethod)}</p>
-            </div>
-            <div className="text-right text-sm text-slate-300">
-              <p>Vendedor: {ticket.seller.name}</p>
-              <p>Cliente: {ticket.customer?.name ?? 'Consumidor final'}</p>
-            </div>
-          </div>
-
-          <div className="mt-5 space-y-3">
-            {ticket.items.map((item) => (
-              <article key={`${item.productId}-${item.productName}`} className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h4 className="font-medium text-white">{item.productName}</h4>
-                    <p className="mt-1 text-sm text-slate-400">
-                      {item.quantity} × {formatCurrency(item.unitPriceInCents)}
-                      {item.discountPercent > 0 ? ` · ${item.discountPercent}% off` : ''}
-                    </p>
-                  </div>
-                  <span className="text-sm text-slate-200">{formatCurrency(item.subtotalInCents)}</span>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-5">
-            <p className="text-sm text-slate-400">Total confirmado</p>
-            <p className="text-2xl font-semibold text-emerald-300">{formatCurrency(ticket.totalInCents)}</p>
-          </div>
+          <SaleTicketView ticket={ticket} />
 
           <div className="mt-6 flex flex-wrap gap-3">
             <button
@@ -361,7 +338,7 @@ export function PosPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-white">Buscador de productos</h3>
-                <p className="mt-1 text-sm text-slate-400">Nombre o categoría. Lo que importa es encontrar rápido sin inventarse códigos mágicos.</p>
+                <p className="mt-1 text-sm text-slate-400">Nombre, categoría o SKU. Lo que importa es encontrar rápido sin inventarse códigos mágicos.</p>
               </div>
               <div className="rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-sm text-slate-300">
                 {products.length} producto{products.length === 1 ? '' : 's'} en resultado
@@ -375,7 +352,7 @@ export function PosPage() {
                 value={productSearch}
                 onChange={(event) => setProductSearch(event.target.value)}
                 className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
-                placeholder="Ej: remera negra o accesorios"
+                placeholder="Ej: remera negra, accesorios o SKU"
               />
             </label>
 
@@ -393,6 +370,7 @@ export function PosPage() {
                         {product.size ? ` · Talle ${product.size}` : ''}
                         {product.color ? ` · ${product.color}` : ''}
                       </p>
+                      {product.sku ? <p className="mt-1 text-xs uppercase tracking-[0.2em] text-sky-200">SKU {product.sku}</p> : null}
                       <p className="mt-2 text-sm text-slate-300">Stock disponible: {product.stock}</p>
                     </div>
 

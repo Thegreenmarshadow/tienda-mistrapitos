@@ -34,6 +34,7 @@ export const IPC = {
   },
   sales: {
     searchProducts: 'sales:products:search',
+    getTicket: 'sales:get-ticket',
     checkout: 'sales:checkout',
   },
   offers: {

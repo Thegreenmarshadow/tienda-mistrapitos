@@ -8,6 +8,7 @@ type CategoryFormState = {
 
 type ProductFormState = {
   name: string
+  sku: string
   description: string
   categoryId: string
   supplierId: string
@@ -23,6 +24,7 @@ const defaultCategoryForm: CategoryFormState = {
 
 const defaultProductForm: ProductFormState = {
   name: '',
+  sku: '',
   description: '',
   categoryId: '',
   supplierId: '',
@@ -48,6 +50,8 @@ function getErrorMessage(error: string) {
       return 'No podés borrar una categoría que ya tiene productos asociados.'
     case 'supplier_inactive':
       return 'No podés asociar un proveedor inactivo a un producto.'
+    case 'sku_taken':
+      return 'Ya existe un producto con ese SKU.'
     case 'category_not_found':
       return 'La categoría seleccionada ya no existe. Recargá la lista.'
     case 'validation_error':
@@ -152,6 +156,7 @@ export function CatalogPage() {
     setEditingProduct(product)
     setProductForm({
       name: product.name,
+      sku: product.sku ?? '',
       description: product.description ?? '',
       categoryId: String(product.categoryId),
       supplierId: product.supplierId ? String(product.supplierId) : '',
@@ -230,6 +235,7 @@ export function CatalogPage() {
 
     const payload = {
       name: parsed.data.name,
+      sku: parsed.data.sku || null,
       description: parsed.data.description || null,
       categoryId: Number(parsed.data.categoryId),
       supplierId: parsed.data.supplierId ? Number(parsed.data.supplierId) : null,
@@ -371,6 +377,11 @@ export function CatalogPage() {
               </label>
 
               <label className="space-y-2 text-sm text-slate-300">
+                <span>SKU / Código</span>
+                <input value={productForm.sku} onChange={(event) => setProductForm((current) => ({ ...current, sku: event.target.value.toUpperCase() }))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400" placeholder="JEAN-WIDE-NEG-42" />
+              </label>
+
+              <label className="space-y-2 text-sm text-slate-300">
                 <span>Categoría</span>
                 <select value={productForm.categoryId} onChange={(event) => setProductForm((current) => ({ ...current, categoryId: event.target.value }))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400">
                   <option value="">Seleccionar categoría</option>
@@ -431,7 +442,7 @@ export function CatalogPage() {
             <div className="grid gap-4 xl:grid-cols-[2fr_repeat(3,1fr)]">
               <label className="space-y-2 text-sm text-slate-300">
                 <span>Búsqueda</span>
-                <input value={search} onChange={(event) => setSearch(event.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400" placeholder="Nombre o categoría" />
+                <input value={search} onChange={(event) => setSearch(event.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400" placeholder="Nombre, categoría o SKU" />
               </label>
 
               <label className="space-y-2 text-sm text-slate-300">
@@ -488,6 +499,7 @@ export function CatalogPage() {
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="font-medium text-white">{product.name}</p>
+                        {product.sku ? <span className="rounded-full border border-sky-500/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-200">SKU {product.sku}</span> : null}
                         <span className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] ${product.active ? 'bg-emerald-500/10 text-emerald-300' : 'bg-slate-700 text-slate-300'}`}>
                           {product.active ? 'Activo' : 'Inactivo'}
                         </span>

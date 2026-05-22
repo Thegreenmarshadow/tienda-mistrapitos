@@ -29,6 +29,11 @@ function normalizeText(value?: string | null) {
   return normalized.length > 0 ? normalized : null
 }
 
+function normalizeSku(value?: string | null) {
+  const normalized = value?.trim().toUpperCase() ?? ''
+  return normalized.length > 0 ? normalized : null
+}
+
 async function getCategoryById(categoryId: number) {
   const db = getDb()
   const category = await db.query.categories.findFirst({
@@ -53,6 +58,16 @@ async function getSupplierById(supplierId: number) {
   }
 
   return supplier
+}
+
+async function getProductBySku(sku: string, excludeProductId?: number) {
+  const db = getDb()
+
+  return db.query.products.findFirst({
+    where: excludeProductId
+      ? and(eq(products.sku, sku), sql`${products.id} <> ${excludeProductId}`)
+      : eq(products.sku, sku),
+  })
 }
 
 function mapCategory(row: Category): Category {
@@ -273,7 +288,7 @@ export const catalogService = {
     const search = filters.search?.trim()
     if (search) {
       const term = `%${search}%`
-      conditions.push(or(like(products.name, term), like(categories.name, term)))
+      conditions.push(or(like(products.name, term), like(categories.name, term), like(products.sku, term)))
     }
 
     if (typeof filters.categoryId === 'number') {
@@ -296,6 +311,7 @@ export const catalogService = {
       .select({
         id: products.id,
         name: products.name,
+        sku: products.sku,
         description: products.description,
         categoryId: products.categoryId,
         categoryName: categories.name,
@@ -324,6 +340,16 @@ export const catalogService = {
 
     await getCategoryById(input.categoryId)
 
+    const normalizedSku = normalizeSku(input.sku)
+
+    if (normalizedSku) {
+      const existingBySku = await getProductBySku(normalizedSku)
+
+      if (existingBySku) {
+        throw new Error('sku_taken')
+      }
+    }
+
     if (typeof input.supplierId === 'number') {
       const supplier = await getSupplierById(input.supplierId)
       if (!supplier.active) {
@@ -336,6 +362,7 @@ export const catalogService = {
         .insert(products)
         .values({
           name: input.name.trim(),
+          sku: normalizedSku,
           description: normalizeText(input.description),
           categoryId: input.categoryId,
           supplierId: input.supplierId ?? null,
@@ -370,6 +397,7 @@ export const catalogService = {
       entityId: createdProduct.id,
       payload: {
         name: createdProduct.name,
+        sku: createdProduct.sku,
         categoryId: input.categoryId,
         supplierId: input.supplierId ?? null,
         priceInCents: input.priceInCents,
@@ -392,6 +420,16 @@ export const catalogService = {
       throw new Error('product_not_found')
     }
 
+    const normalizedSku = normalizeSku(input.sku)
+
+    if (normalizedSku) {
+      const existingBySku = await getProductBySku(normalizedSku, input.id)
+
+      if (existingBySku) {
+        throw new Error('sku_taken')
+      }
+    }
+
     await getCategoryById(input.categoryId)
 
     if (typeof input.supplierId === 'number') {
@@ -405,6 +443,7 @@ export const catalogService = {
       .update(products)
       .set({
         name: input.name.trim(),
+        sku: normalizedSku,
         description: normalizeText(input.description),
         categoryId: input.categoryId,
         supplierId: input.supplierId ?? null,
@@ -424,12 +463,14 @@ export const catalogService = {
       payload: {
         previous: {
           name: currentProduct.name,
+          sku: currentProduct.sku,
           categoryId: currentProduct.categoryId,
           supplierId: currentProduct.supplierId,
           priceInCents: currentProduct.price,
         },
         next: {
           name: product.name,
+          sku: product.sku,
           categoryId: product.categoryId,
           supplierId: product.supplierId,
           priceInCents: product.price,

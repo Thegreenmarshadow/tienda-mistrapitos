@@ -20,6 +20,10 @@ const CheckoutSchema = z.object({
     .min(1),
 })
 
+const GetTicketSchema = z.object({
+  saleId: z.number().int().positive(),
+})
+
 function normalizeError(error: unknown) {
   if (error instanceof z.ZodError) {
     return 'validation_error'
@@ -38,6 +42,16 @@ export function registerSalesHandlers() {
       const filters = SearchProductsSchema.parse(rawFilters ?? {})
       const products = await salesService.searchProducts(filters.search)
       return { ok: true, data: products }
+    } catch (error) {
+      return { ok: false, error: normalizeError(error) }
+    }
+  })
+
+  ipcMain.handle(IPC.sales.getTicket, async (_event, rawInput) => {
+    try {
+      const input = GetTicketSchema.parse(rawInput)
+      const ticket = await salesService.getTicket(input.saleId)
+      return { ok: true, data: ticket }
     } catch (error) {
       return { ok: false, error: normalizeError(error) }
     }

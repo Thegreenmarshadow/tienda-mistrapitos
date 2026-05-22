@@ -95,6 +95,7 @@ export type Supplier = {
 export type Product = {
   id: number
   name: string
+  sku: string | null
   description: string | null
   categoryId: number
   categoryName: string
@@ -167,6 +168,7 @@ export type SetSupplierActiveInput = {
 
 export type CreateProductInput = {
   name: string
+  sku?: string | null
   description?: string | null
   categoryId: number
   supplierId?: number | null
@@ -179,6 +181,7 @@ export type CreateProductInput = {
 export type UpdateProductInput = {
   id: number
   name: string
+  sku?: string | null
   description?: string | null
   categoryId: number
   supplierId?: number | null
@@ -249,6 +252,7 @@ export type CustomerSaleSummary = {
 export type PosProduct = {
   id: number
   name: string
+  sku: string | null
   categoryName: string
   size: string | null
   color: string | null
@@ -375,6 +379,7 @@ export type AuditLogEntry = {
   action: string
   entity: string
   entityId: number | null
+  terminalId: string
   payload: unknown
   user: AuditLogUserOption
 }

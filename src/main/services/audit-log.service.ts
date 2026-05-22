@@ -60,6 +60,7 @@ export const auditLogService = {
         action: auditLog.action,
         entity: auditLog.entity,
         entityId: auditLog.entityId,
+        terminalId: auditLog.terminalId,
         payload: auditLog.payload,
         userId: users.id,
         userName: users.name,
@@ -90,6 +91,7 @@ export const auditLogService = {
       action: row.action,
       entity: row.entity,
       entityId: row.entityId,
+      terminalId: row.terminalId,
       payload: safeParsePayload(row.payload),
       user: {
         id: row.userId,

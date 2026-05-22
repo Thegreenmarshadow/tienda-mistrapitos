@@ -1,3 +1,4 @@
+import { hostname } from 'os'
 import { getDb } from '../db/client'
 import { auditLog } from '../db/schema'
 import { requireAuth } from '../session'
@@ -12,6 +13,10 @@ type AuditEntry = {
   userId?: number
 }
 
+function getTerminalId() {
+  return hostname().trim() || 'unknown-terminal'
+}
+
 export async function writeAuditLog(entry: AuditEntry, executor: AuditExecutor = getDb()) {
   const user = requireAuth()
 
@@ -20,6 +25,7 @@ export async function writeAuditLog(entry: AuditEntry, executor: AuditExecutor =
     action: entry.action,
     entity: entry.entity,
     entityId: entry.entityId ?? null,
+    terminalId: getTerminalId(),
     payload: JSON.stringify(entry.payload),
   })
 }
