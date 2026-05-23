@@ -86,8 +86,6 @@ export function migrateDatabase() {
     CREATE INDEX IF NOT EXISTS idx_products_supplier ON products(supplier_id);
     CREATE INDEX IF NOT EXISTS idx_products_active ON products(active);
     CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
-    CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku_unique ON products(sku);
-
     CREATE TRIGGER IF NOT EXISTS products_set_updated_at
     AFTER UPDATE ON products
     FOR EACH ROW
