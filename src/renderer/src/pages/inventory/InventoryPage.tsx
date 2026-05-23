@@ -42,7 +42,7 @@ function getErrorMessage(error: string) {
     case 'validation_error':
       return 'Hay datos inválidos en el formulario de inventario.'
     case 'empty_stock_entry':
-      return 'Agregá al menos un producto para registrar entrada.'
+      return 'Agrega al menos un producto para registrar la entrada.'
     case 'invalid_stock_quantity':
       return 'La cantidad de entrada debe ser un entero positivo.'
     case 'invalid_adjustment_delta':
@@ -50,13 +50,13 @@ function getErrorMessage(error: string) {
     case 'invalid_adjustment_note':
       return 'El ajuste necesita un motivo claro.'
     case 'negative_stock':
-      return 'Ese ajuste dejaría el stock en negativo. Así no se opera un inventario serio.'
+      return 'Ese ajuste dejaría el stock en negativo. Verifica los datos e inténtalo nuevamente.'
     case 'product_not_found':
-      return 'El producto seleccionado ya no existe. Recargá la lista.'
+      return 'El producto seleccionado ya no existe. Vuelve a cargar la lista.'
     case 'forbidden':
       return 'Tu rol no tiene permiso para esa operación de inventario.'
     case 'unauthorized':
-      return 'La sesión expiró. Volvé a iniciar sesión.'
+      return 'La sesión expiró. Vuelve a iniciar sesión.'
     default:
       return 'No se pudo registrar el movimiento de inventario.'
   }
@@ -197,7 +197,7 @@ export function InventoryPage() {
 
     const parsed = stockEntrySchema.safeParse(entryForm)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá la entrada de stock.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa la entrada de stock.')
       return
     }
 
@@ -232,7 +232,7 @@ export function InventoryPage() {
 
     const parsed = stockAdjustmentSchema.safeParse(adjustmentForm)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá el ajuste manual.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa el ajuste manual.')
       return
     }
 
@@ -258,7 +258,7 @@ export function InventoryPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 5</p>
         <h2 className="mt-2 text-3xl font-semibold text-white">Inventario y movimientos</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
-          El stock no se “arregla” tocando un número. Se mueve con entradas, ventas y ajustes auditados. Si no, después nadie sabe qué pasó.
+          Gestiona el inventario mediante entradas, ventas y ajustes registrados para mantener la trazabilidad de cada movimiento.
         </p>
         {error ? <p className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{error}</p> : null}
         {feedback ? <p className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{feedback}</p> : null}
@@ -267,8 +267,8 @@ export function InventoryPage() {
       <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
         <section className="space-y-6">
           <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
-            <h3 className="text-xl font-semibold text-white">Entrada de mercadería</h3>
-            <p className="mt-1 text-sm text-slate-400">Sumá stock cuando llega reposición. Cada movimiento deja huella.</p>
+            <h3 className="text-xl font-semibold text-white">Entrada de mercancía</h3>
+            <p className="mt-1 text-sm text-slate-400">Registra el ingreso de mercancía cuando llega una reposición. Cada movimiento queda registrado.</p>
 
             <form className="mt-5 space-y-3" onSubmit={handleEntrySubmit}>
               <div className="space-y-3">
@@ -298,7 +298,7 @@ export function InventoryPage() {
                             onChange={(event) => handleEntryItemChange(index, 'productId', event.target.value)}
                             className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
                           >
-                            <option value="">Seleccioná un producto</option>
+                            <option value="">Selecciona un producto</option>
                             {products.map((product) => {
                               const isSelectedInAnotherRow = selectedProductIds.includes(String(product.id))
 
@@ -349,13 +349,13 @@ export function InventoryPage() {
           {user?.role === 'admin' ? (
             <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
               <h3 className="text-xl font-semibold text-white">Ajuste manual</h3>
-              <p className="mt-1 text-sm text-slate-400">Solo admin: para mermas, correcciones o incidentes. Acá el motivo es OBLIGATORIO.</p>
+              <p className="mt-1 text-sm text-slate-400">Solo para administradores: permite registrar mermas, correcciones o incidencias. El motivo es obligatorio.</p>
 
               <form className="mt-5 space-y-3" onSubmit={handleAdjustmentSubmit}>
                 <label className="block space-y-2 text-sm text-slate-300">
                   <span>Producto</span>
                   <select value={adjustmentForm.productId} onChange={(event) => setAdjustmentForm((current) => ({ ...current, productId: event.target.value }))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400">
-                    <option value="">Seleccioná un producto</option>
+                    <option value="">Selecciona un producto</option>
                     {products.map((product) => (
                       <option key={product.id} value={product.id}>
                         {product.name} · Stock {product.stock}
@@ -440,7 +440,7 @@ export function InventoryPage() {
           <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
             <h3 className="text-xl font-semibold text-white">Movimientos recientes</h3>
             <div className="mt-5 space-y-3">
-              {movements.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Todavía no hay movimientos registrados.</p> : null}
+              {movements.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Aún no hay movimientos registrados.</p> : null}
               {movements.map((movement) => (
                 <article key={movement.id} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">

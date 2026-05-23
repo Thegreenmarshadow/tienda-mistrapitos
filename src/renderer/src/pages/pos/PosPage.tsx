@@ -52,25 +52,25 @@ function getPaymentLabel(method: PaymentMethod) {
 function getErrorMessage(error: string) {
   switch (error) {
     case 'validation_error':
-      return 'Hay datos inválidos. Revisá el formulario o el checkout.'
+      return 'Hay datos no válidos. Revisa el formulario o el proceso de cobro.'
     case 'empty_sale':
-      return 'No podés confirmar una venta sin productos en el carrito.'
+      return 'No puedes confirmar una venta sin productos en el carrito.'
     case 'invalid_quantity':
       return 'La cantidad de algún producto no es válida.'
     case 'product_not_found':
-      return 'Uno de los productos ya no existe. Recargá la búsqueda.'
+      return 'Uno de los productos ya no existe. Vuelve a cargar la búsqueda.'
     case 'product_inactive':
-      return 'Hay un producto desactivado en el carrito. Quitalo antes de cobrar.'
+      return 'Hay un producto desactivado en el carrito. Retíralo antes de cobrar.'
     case 'insufficient_stock':
-      return 'El stock cambió antes de confirmar. Revisá el carrito y volvé a intentar.'
+      return 'El stock cambió antes de confirmar. Revisa el carrito e inténtalo nuevamente.'
     case 'customer_not_found':
-      return 'El cliente seleccionado ya no existe. Elegilo de nuevo.'
+      return 'El cliente seleccionado ya no existe. Selecciónalo nuevamente.'
     case 'forbidden':
       return 'Tu rol no tiene permiso para operar ventas.'
     case 'unauthorized':
-      return 'La sesión expiró. Volvé a iniciar sesión.'
+      return 'La sesión expiró. Vuelve a iniciar sesión.'
     default:
-      return 'No pudimos completar la operación del POS. Intentá de nuevo.'
+      return 'No se pudo completar la operación del POS. Inténtalo de nuevo.'
   }
 }
 
@@ -194,7 +194,7 @@ export function PosPage() {
       }
 
       if (existing.quantity >= existing.product.stock) {
-        setError('No podés vender más unidades que el stock disponible.')
+      setError('No puedes vender más unidades que el stock disponible.')
         return current
       }
 
@@ -230,7 +230,7 @@ export function PosPage() {
 
     const parsed = quickCustomerSchema.safeParse(quickCustomerForm)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá el alta rápida del cliente.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa el registro rápido del cliente.')
       return
     }
 
@@ -291,7 +291,7 @@ export function PosPage() {
           <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 4</p>
           <h2 className="mt-2 text-3xl font-semibold text-white">Ticket post-venta</h2>
           <p className="mt-2 max-w-3xl text-sm text-slate-400">
-            La venta ya impactó stock, historial y auditoría. Acá ves el comprobante exacto, no una interpretación creativa.
+            La venta ya actualizó el stock, el historial y la auditoría. Aquí puedes consultar el comprobante generado.
           </p>
           {feedback ? <p className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{feedback}</p> : null}
         </section>
@@ -326,7 +326,7 @@ export function PosPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 4</p>
         <h2 className="mt-2 text-3xl font-semibold text-white">POS y ventas</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
-          Buscar, cobrar y registrar en una sola operación consistente. Acá no alcanza con “parece que vendió”: el stock tiene que cerrar.
+          Busca productos, registra el cobro y confirma la venta en una sola operación consistente.
         </p>
         {error ? <p className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{error}</p> : null}
         {feedback ? <p className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{feedback}</p> : null}
@@ -338,7 +338,7 @@ export function PosPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-white">Buscador de productos</h3>
-                <p className="mt-1 text-sm text-slate-400">Nombre, categoría o SKU. Lo que importa es encontrar rápido sin inventarse códigos mágicos.</p>
+                <p className="mt-1 text-sm text-slate-400">Busca productos por nombre, categoría o SKU para agregarlos al carrito.</p>
               </div>
               <div className="rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-sm text-slate-300">
                 {products.length} producto{products.length === 1 ? '' : 's'} en resultado
@@ -352,7 +352,7 @@ export function PosPage() {
                 value={productSearch}
                 onChange={(event) => setProductSearch(event.target.value)}
                 className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
-                placeholder="Ej: remera negra, accesorios o SKU"
+                placeholder="Ej.: camiseta negra, accesorios o SKU"
               />
             </label>
 
@@ -367,7 +367,7 @@ export function PosPage() {
                       <h4 className="font-medium text-white">{product.name}</h4>
                       <p className="mt-1 text-sm text-slate-400">
                         {product.categoryName}
-                        {product.size ? ` · Talle ${product.size}` : ''}
+                        {product.size ? ` · Talla ${product.size}` : ''}
                         {product.color ? ` · ${product.color}` : ''}
                       </p>
                       {product.sku ? <p className="mt-1 text-xs uppercase tracking-[0.2em] text-sky-200">SKU {product.sku}</p> : null}
@@ -406,7 +406,7 @@ export function PosPage() {
             <p className="mt-1 text-sm text-slate-400">Modificar cantidad, validar stock y cerrar la venta con un método de pago.</p>
 
             <div className="mt-5 space-y-3">
-              {cartDetails.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Todavía no agregaste productos.</p> : null}
+              {cartDetails.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Aún no has agregado productos.</p> : null}
 
               {cartDetails.map((item) => (
                 <article key={item.product.id} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
@@ -453,7 +453,7 @@ export function PosPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-xl font-semibold text-white">Cliente y cobro</h3>
-                <p className="mt-1 text-sm text-slate-400">El cliente es opcional, pero si querés historial real tenés que vincularlo.</p>
+                <p className="mt-1 text-sm text-slate-400">El cliente es opcional, pero si deseas conservar su historial debes vincularlo a la venta.</p>
               </div>
               <button type="button" onClick={() => setIsQuickCustomerOpen(true)} className="rounded-2xl border border-slate-700 px-4 py-2 text-sm text-slate-100 hover:bg-slate-800">
                 Nuevo cliente
@@ -532,8 +532,8 @@ export function PosPage() {
           <div className="w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl shadow-black/40">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xl font-semibold text-white">Alta rápida de cliente</h3>
-                <p className="mt-1 text-sm text-slate-400">Sin salir del POS. Eso pide la historia de usuario y eso hacemos.</p>
+                <h3 className="text-xl font-semibold text-white">Registro rápido de cliente</h3>
+                <p className="mt-1 text-sm text-slate-400">Crea un cliente sin salir del POS para continuar con la venta.</p>
               </div>
               <button type="button" onClick={() => setIsQuickCustomerOpen(false)} className="text-sm text-slate-400 hover:text-white">
                 Cerrar

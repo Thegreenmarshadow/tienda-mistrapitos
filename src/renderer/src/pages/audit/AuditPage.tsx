@@ -10,7 +10,7 @@ function getErrorMessage(error: string) {
     case 'forbidden':
       return 'Solo admin puede revisar la auditoría.'
     case 'unauthorized':
-      return 'La sesión expiró. Volvé a iniciar sesión.'
+      return 'La sesión expiró. Vuelve a iniciar sesión.'
     default:
       return 'No pudimos cargar el log de auditoría.'
   }
@@ -70,7 +70,7 @@ export function AuditPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 6</p>
         <h2 className="mt-2 text-3xl font-semibold text-white">Log de auditoría</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
-          Trazabilidad real: quién hizo qué, cuándo y sobre qué entidad. Si hay un incidente, esto es lo primero que mirás.
+          Consulta el registro de acciones importantes del sistema, incluyendo usuario, fecha, entidad y terminal utilizada.
         </p>
         {error ? <p className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{error}</p> : null}
       </section>

@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const offerFormSchema = z
   .object({
-    productId: z.string().trim().min(1, 'Seleccioná un producto.'),
+    productId: z.string().trim().min(1, 'Selecciona un producto.'),
     discountPercent: z.string().trim().min(1, 'Indicá el descuento.'),
     startAt: z.string().trim().min(1, 'Indicá cuándo arranca la oferta.'),
     endAt: z.string().trim().min(1, 'Indicá cuándo termina la oferta.'),

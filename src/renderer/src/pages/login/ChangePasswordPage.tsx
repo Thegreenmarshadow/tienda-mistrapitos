@@ -8,9 +8,9 @@ function getErrorMessage(error: string) {
     case 'invalid_credentials':
       return 'La contraseña actual no coincide.'
     case 'validation_error':
-      return 'Revisá los datos ingresados.'
+      return 'Revisa los datos ingresados.'
     case 'unauthorized':
-      return 'Tu sesión expiró. Volvé a iniciar sesión.'
+      return 'Tu sesión expiró. Vuelve a iniciar sesión.'
     default:
       return 'No pudimos actualizar la contraseña.'
   }
@@ -42,7 +42,7 @@ export function ChangePasswordPage() {
     const parsed = ChangePasswordSchema.safeParse(form)
 
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá el formulario.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa el formulario.')
       return
     }
 
@@ -66,9 +66,9 @@ export function ChangePasswordPage() {
       <div className="w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl shadow-slate-950/40">
         <div className="space-y-3">
           <p className="text-sm uppercase tracking-[0.3em] text-amber-400">Acción requerida</p>
-          <h1 className="text-3xl font-semibold text-slate-50">Cambiá la contraseña inicial</h1>
+          <h1 className="text-3xl font-semibold text-slate-50">Cambia la contraseña inicial</h1>
           <p className="text-sm text-slate-400">
-            Esto sale directo de la historia US-A1. Nada de dejar credenciales seed activas, hermano.
+            Para proteger el acceso, debes cambiar la contraseña inicial antes de continuar.
           </p>
         </div>
 

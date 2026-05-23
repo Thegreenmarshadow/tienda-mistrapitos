@@ -45,7 +45,7 @@ export function AppLayout() {
 
   const handleLogout = async () => {
     if (hasPendingCart) {
-      const confirmed = window.confirm('Tenés productos en el carrito del POS sin confirmar. ¿Seguro que querés cerrar sesión?')
+      const confirmed = window.confirm('Hay productos en el carrito del POS sin confirmar. ¿Seguro que deseas cerrar sesión?')
 
       if (!confirmed) {
         return
@@ -64,7 +64,7 @@ export function AppLayout() {
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.3em] text-emerald-400">Mis Trapitos POS</p>
             <h1 className="text-2xl font-semibold">Operación offline</h1>
-            <p className="text-sm text-slate-400">Mono-PC, SQLite local y roles estrictos. Bien, como tiene que ser.</p>
+            <p className="text-sm text-slate-400">Una sola PC, SQLite local y roles definidos para cada operación.</p>
           </div>
 
           <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">

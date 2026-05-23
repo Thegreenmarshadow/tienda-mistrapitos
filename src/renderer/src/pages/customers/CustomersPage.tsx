@@ -37,15 +37,15 @@ function getErrorMessage(error: string) {
     case 'validation_error':
       return 'Hay datos inválidos en el formulario del cliente.'
     case 'customer_not_found':
-      return 'El cliente ya no existe. Recargá la lista.'
+      return 'El cliente ya no existe. Vuelve a cargar la lista.'
     case 'sale_not_found':
       return 'La venta que intentaste abrir ya no existe.'
     case 'forbidden':
       return 'Tu rol no tiene permiso para gestionar clientes.'
     case 'unauthorized':
-      return 'La sesión expiró. Volvé a iniciar sesión.'
+      return 'La sesión expiró. Vuelve a iniciar sesión.'
     default:
-      return 'No se pudo operar el módulo de clientes. Revisá los datos e intentá otra vez.'
+      return 'No se pudo completar la operación del módulo de clientes. Revisa los datos e inténtalo nuevamente.'
   }
 }
 
@@ -141,7 +141,7 @@ export function CustomersPage() {
 
     const parsed = customerFormSchema.safeParse(customerForm)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá el formulario del cliente.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa el formulario del cliente.')
       return
     }
 
@@ -189,7 +189,7 @@ export function CustomersPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 3</p>
         <h2 className="mt-2 text-3xl font-semibold text-white">Clientes e historial comercial</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
-          Cliente registrado significa contexto para vender mejor. Nombre, teléfono e historial en un solo lugar; nada de acordarse “de memoria”, porque así es como se pierde información del negocio.
+          Registra clientes y consulta su historial de compras en un solo lugar para dar seguimiento a la relación comercial.
         </p>
         {error ? <p className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{error}</p> : null}
         {feedback ? <p className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{feedback}</p> : null}
@@ -200,7 +200,7 @@ export function CustomersPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-xl font-semibold text-white">Registro de clientes</h3>
-              <p className="mt-1 text-sm text-slate-400">Alta y edición. No se borra historial humano del negocio como si nada.</p>
+                <p className="mt-1 text-sm text-slate-400">Registra y actualiza clientes sin perder el historial de compras.</p>
             </div>
             {editingCustomer ? (
               <button type="button" onClick={resetForm} className="rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">
@@ -217,7 +217,7 @@ export function CustomersPage() {
 
             <label className="block space-y-2 text-sm text-slate-300">
               <span>Teléfono</span>
-              <input value={customerForm.phone} onChange={(event) => setCustomerForm((current) => ({ ...current, phone: event.target.value }))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400" placeholder="11 5555-1234" />
+                <input value={customerForm.phone} onChange={(event) => setCustomerForm((current) => ({ ...current, phone: event.target.value }))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400" placeholder="5551234567" />
             </label>
 
             <label className="block space-y-2 text-sm text-slate-300">
@@ -263,7 +263,7 @@ export function CustomersPage() {
               </div>
 
               {loading ? <p className="px-4 py-6 text-sm text-slate-400">Cargando clientes...</p> : null}
-              {!loading && customers.length === 0 ? <p className="px-4 py-6 text-sm text-slate-400">Todavía no hay clientes para esos filtros.</p> : null}
+              {!loading && customers.length === 0 ? <p className="px-4 py-6 text-sm text-slate-400">Aún no hay clientes para esos filtros.</p> : null}
 
               <div className="divide-y divide-slate-800 bg-slate-900/60">
                 {customers.map((customer) => (
@@ -272,7 +272,7 @@ export function CustomersPage() {
                       <button type="button" onClick={() => void loadCustomers(customer.id)} className="text-left font-medium text-white underline-offset-4 hover:underline">
                         {customer.name}
                       </button>
-                      <p className="mt-1 text-xs text-slate-400">Última compra: {customer.lastPurchaseAt ? formatDate(customer.lastPurchaseAt) : 'Sin historial todavía'}</p>
+                      <p className="mt-1 text-xs text-slate-400">Última compra: {customer.lastPurchaseAt ? formatDate(customer.lastPurchaseAt) : 'Sin historial por el momento'}</p>
                     </div>
                     <span>{customer.phone ?? '—'}</span>
                     <span>{customer.email ?? '—'}</span>
@@ -292,16 +292,16 @@ export function CustomersPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-xl font-semibold text-white">Historial del cliente</h3>
-                <p className="mt-1 text-sm text-slate-400">Las ventas nuevas alimentan esta ficha automáticamente, así que acá ves contexto comercial real y no recuerdos sueltos.</p>
+                <p className="mt-1 text-sm text-slate-400">Las ventas registradas se agregan automáticamente a esta ficha para mantener el historial actualizado.</p>
               </div>
               {selectedCustomer ? <div className="rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-sm text-slate-300">{selectedCustomer.name}</div> : null}
             </div>
 
-            {!selectedCustomer ? <p className="mt-5 text-sm text-slate-400">Seleccioná un cliente para ver su historial.</p> : null}
+            {!selectedCustomer ? <p className="mt-5 text-sm text-slate-400">Selecciona un cliente para ver su historial.</p> : null}
 
             {selectedCustomer ? (
               <div className="mt-5 space-y-3">
-                {history.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Este cliente todavía no tiene compras registradas.</p> : null}
+                {history.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Este cliente aún no tiene compras registradas.</p> : null}
 
                  {history.map((sale) => (
                    <article key={sale.saleId} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">

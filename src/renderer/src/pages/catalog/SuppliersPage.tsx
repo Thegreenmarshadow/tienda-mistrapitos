@@ -19,11 +19,11 @@ function getErrorMessage(error: string) {
     case 'validation_error':
       return 'Hay datos inválidos en el formulario del proveedor.'
     case 'supplier_not_found':
-      return 'El proveedor ya no existe. Recargá la pantalla.'
+      return 'El proveedor ya no existe. Vuelve a cargar la pantalla.'
     case 'forbidden':
       return 'Tu rol no tiene permiso para gestionar proveedores.'
     default:
-      return 'No se pudo guardar el proveedor. Revisá los datos e intentá de nuevo.'
+      return 'No se pudo guardar el proveedor. Revisa los datos e inténtalo de nuevo.'
   }
 }
 
@@ -114,7 +114,7 @@ export function SuppliersPage() {
 
     const parsed = supplierFormSchema.safeParse(supplierForm)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá el formulario del proveedor.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa el formulario del proveedor.')
       return
     }
 
@@ -167,7 +167,7 @@ export function SuppliersPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 2</p>
         <h2 className="mt-2 text-3xl font-semibold text-white">Proveedores y reposición</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
-          Acá registrás a quién le comprás la mercadería. Y sí, la vista de productos por proveedor es CLAVE, porque inventario sin trazabilidad de origen es una lotería.
+          Aquí puedes registrar a los proveedores del negocio y consultar los productos asociados a cada uno.
         </p>
         {error ? <p className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{error}</p> : null}
         {feedback ? <p className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{feedback}</p> : null}
@@ -178,7 +178,7 @@ export function SuppliersPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-xl font-semibold text-white">ABM de proveedores</h3>
-              <p className="mt-1 text-sm text-slate-400">Nombre, teléfono y email. Si deja de operar, lo desactivás. Nada de borrar historial como si no existiera.</p>
+               <p className="mt-1 text-sm text-slate-400">Registra nombre, teléfono y correo electrónico. Si deja de operar, puedes desactivarlo sin perder el historial.</p>
             </div>
             {editingSupplier ? (
               <button type="button" onClick={resetForm} className="rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">
@@ -222,7 +222,7 @@ export function SuppliersPage() {
               </div>
 
               {loading ? <p className="px-4 py-6 text-sm text-slate-400">Cargando proveedores...</p> : null}
-              {!loading && suppliers.length === 0 ? <p className="px-4 py-6 text-sm text-slate-400">Todavía no cargaste proveedores.</p> : null}
+              {!loading && suppliers.length === 0 ? <p className="px-4 py-6 text-sm text-slate-400">Aún no hay proveedores registrados.</p> : null}
 
               <div className="divide-y divide-slate-800 bg-slate-900/60">
                 {suppliers.map((supplier) => (
@@ -254,16 +254,16 @@ export function SuppliersPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-xl font-semibold text-white">Productos por proveedor</h3>
-                <p className="mt-1 text-sm text-slate-400">Seleccioná un proveedor del listado y revisá su catálogo asociado.</p>
+                <p className="mt-1 text-sm text-slate-400">Selecciona un proveedor del listado para revisar su catálogo asociado.</p>
               </div>
               {selectedSupplier ? <div className="rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-sm text-slate-300">{selectedSupplier.name}</div> : null}
             </div>
 
-            {!selectedSupplier ? <p className="mt-5 text-sm text-slate-400">No hay proveedor seleccionado todavía.</p> : null}
+            {!selectedSupplier ? <p className="mt-5 text-sm text-slate-400">Aún no hay un proveedor seleccionado.</p> : null}
 
             {selectedSupplier ? (
               <div className="mt-5 space-y-3">
-                {supplierProducts.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Este proveedor todavía no tiene productos asociados.</p> : null}
+                {supplierProducts.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Este proveedor aún no tiene productos asociados.</p> : null}
 
                 {supplierProducts.map((product) => (
                   <article key={product.id} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">

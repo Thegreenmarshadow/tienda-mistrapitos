@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 const stockEntryItemSchema = z.object({
-  productId: z.string().trim().min(1, 'Seleccioná un producto para ingresar stock.'),
+  productId: z.string().trim().min(1, 'Selecciona un producto para ingresar stock.'),
   quantity: z.string().trim().min(1, 'Indicá la cantidad que entra.'),
 })
 
@@ -38,7 +38,7 @@ export const stockEntrySchema = z.object({
 })
 
 export const stockAdjustmentSchema = z.object({
-  productId: z.string().trim().min(1, 'Seleccioná un producto para ajustar.'),
+  productId: z.string().trim().min(1, 'Selecciona un producto para ajustar.'),
   delta: z.string().trim().min(1, 'Indicá el delta del ajuste.'),
   note: z.string().trim().min(1, 'Explicá el motivo del ajuste.').max(240, 'El motivo no puede superar los 240 caracteres.'),
 }).superRefine((value, context) => {

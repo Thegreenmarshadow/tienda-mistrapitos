@@ -46,19 +46,19 @@ function getErrorMessage(error: string) {
     case 'invalid_offer_window':
       return 'La fecha fin tiene que ser posterior al inicio.'
     case 'offer_not_found':
-      return 'La oferta ya no existe. Recargá la vista.'
+      return 'La oferta ya no existe. Vuelve a cargar la vista.'
     case 'product_not_found':
       return 'El producto seleccionado ya no existe.'
     case 'product_inactive':
-      return 'No podés crear ofertas sobre productos inactivos.'
+      return 'No puedes crear ofertas sobre productos inactivos.'
     case 'validation_error':
       return 'Hay datos inválidos en el formulario de ofertas.'
     case 'forbidden':
       return 'Tu rol no tiene permiso para gestionar ofertas.'
     case 'unauthorized':
-      return 'La sesión expiró. Volvé a iniciar sesión.'
+      return 'La sesión expiró. Vuelve a iniciar sesión.'
     default:
-      return 'No pudimos guardar la oferta. Revisá los datos e intentá de nuevo.'
+      return 'No se pudo guardar la oferta. Revisa los datos e inténtalo de nuevo.'
   }
 }
 
@@ -132,7 +132,7 @@ export function OffersPage() {
 
     const parsed = offerFormSchema.safeParse(offerForm)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá el formulario de la oferta.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa el formulario de la oferta.')
       return
     }
 
@@ -158,7 +158,7 @@ export function OffersPage() {
   }
 
   const handleDelete = async (offer: Offer) => {
-    if (!window.confirm(`¿Seguro que querés eliminar la oferta de ${offer.productName}?`)) {
+    if (!window.confirm(`¿Seguro que deseas eliminar la oferta de ${offer.productName}?`)) {
       return
     }
 
@@ -185,7 +185,7 @@ export function OffersPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 5</p>
         <h2 className="mt-2 text-3xl font-semibold text-white">Ofertas automáticas</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
-          Acá definís descuentos con vigencia real. La venta no debería depender de que el vendedor se acuerde una promo de memoria: el sistema la tiene que aplicar solo.
+          Configura descuentos con vigencia definida para que el sistema los aplique automáticamente durante la venta.
         </p>
         {error ? <p className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{error}</p> : null}
         {feedback ? <p className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{feedback}</p> : null}
@@ -196,7 +196,7 @@ export function OffersPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-xl font-semibold text-white">Crear o editar oferta</h3>
-              <p className="mt-1 text-sm text-slate-400">Descuento por producto, con inicio y fin. Sin fechas coherentes, NO hay promo seria.</p>
+              <p className="mt-1 text-sm text-slate-400">Configura el descuento por producto con fecha de inicio y fin.</p>
             </div>
             {editingOffer ? (
               <button type="button" onClick={resetForm} className="rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">
@@ -209,7 +209,7 @@ export function OffersPage() {
             <label className="block space-y-2 text-sm text-slate-300">
               <span>Producto</span>
               <select value={offerForm.productId} onChange={(event) => setOfferForm((current) => ({ ...current, productId: event.target.value }))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400">
-                <option value="">Seleccioná un producto</option>
+                <option value="">Selecciona un producto</option>
                 {activeProducts.map((product) => (
                   <option key={product.id} value={product.id}>
                     {product.name} · {product.categoryName}
@@ -244,7 +244,7 @@ export function OffersPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-white">Ofertas registradas</h3>
-                <p className="mt-1 text-sm text-slate-400">Si hay solapamiento, lo marcamos. La base lo permite, pero el equipo TIENE que verlo.</p>
+                <p className="mt-1 text-sm text-slate-400">Si hay solapamiento entre ofertas, el sistema lo muestra para facilitar la revisión.</p>
               </div>
 
               <label className="space-y-2 text-sm text-slate-300">
@@ -259,7 +259,7 @@ export function OffersPage() {
             </div>
 
             {loading ? <p className="mt-5 text-sm text-slate-400">Cargando ofertas...</p> : null}
-            {!loading && offers.length === 0 ? <p className="mt-5 rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Todavía no hay ofertas registradas para este filtro.</p> : null}
+            {!loading && offers.length === 0 ? <p className="mt-5 rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Aún no hay ofertas registradas para este filtro.</p> : null}
 
             <div className="mt-5 space-y-3">
               {offers.map((offer) => (

@@ -8,9 +8,9 @@ function getErrorMessage(error: string) {
     case 'invalid_credentials':
       return 'Usuario o contraseña incorrectos.'
     case 'validation_error':
-      return 'Completá usuario y contraseña.'
+      return 'Completa usuario y contraseña.'
     default:
-      return 'No pudimos iniciar sesión. Intentá de nuevo.'
+      return 'No pudimos iniciar sesión. Inténtalo de nuevo.'
   }
 }
 
@@ -56,7 +56,7 @@ export function LoginPage() {
     const parsed = LoginSchema.safeParse(form)
 
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Completá el formulario.')
+      setError(parsed.error.issues[0]?.message ?? 'Completa el formulario.')
       return
     }
 
@@ -79,10 +79,10 @@ export function LoginPage() {
           <p className="text-sm uppercase tracking-[0.35em] text-emerald-400">Mis Trapitos POS</p>
           <div className="space-y-3">
             <h1 className="max-w-xl text-5xl font-semibold leading-tight">
-              Login local, roles claros y arquitectura sin humo.
+              Acceso local con roles definidos y control de operación.
             </h1>
             <p className="max-w-lg text-lg text-slate-300">
-              Electron + React + SQLite. Todo offline, todo en una sola PC. Es así de fácil cuando el alcance está bien pensado.
+              Electron + React + SQLite para operar sin conexión en una sola computadora.
             </p>
           </div>
         </div>
@@ -105,7 +105,7 @@ export function LoginPage() {
         <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl shadow-slate-950/40 backdrop-blur">
           <div className="space-y-2 text-center">
             <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Bienvenido</p>
-            <h2 className="text-3xl font-semibold text-slate-50">Iniciá sesión</h2>
+            <h2 className="text-3xl font-semibold text-slate-50">Inicia sesión</h2>
             <p className="text-sm text-slate-400">Seed inicial listo: admin / admin123</p>
           </div>
 

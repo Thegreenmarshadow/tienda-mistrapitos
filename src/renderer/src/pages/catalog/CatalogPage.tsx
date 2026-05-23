@@ -47,21 +47,21 @@ function getErrorMessage(error: string) {
     case 'category_name_taken':
       return 'Ya existe una categoría con ese nombre.'
     case 'category_in_use':
-      return 'No podés borrar una categoría que ya tiene productos asociados.'
+      return 'No puedes borrar una categoría que ya tiene productos asociados.'
     case 'supplier_inactive':
-      return 'No podés asociar un proveedor inactivo a un producto.'
+      return 'No puedes asociar un proveedor inactivo a un producto.'
     case 'sku_taken':
       return 'Ya existe un producto con ese SKU.'
     case 'category_not_found':
-      return 'La categoría seleccionada ya no existe. Recargá la lista.'
+      return 'La categoría seleccionada ya no existe. Vuelve a cargar la lista.'
     case 'validation_error':
-      return 'Hay datos inválidos en el formulario. Revisalos y probá de nuevo.'
+      return 'Hay datos no válidos en el formulario. Revísalos e inténtalo de nuevo.'
     case 'forbidden':
       return 'Tu rol no tiene permiso para operar el catálogo.'
     case 'unauthorized':
-      return 'La sesión expiró. Volvé a iniciar sesión.'
+      return 'La sesión expiró. Vuelve a iniciar sesión.'
     default:
-      return 'Pasó algo al guardar en catálogo. Revisá los datos e intentá otra vez.'
+      return 'Ocurrió un problema al guardar en el catálogo. Revisa los datos e inténtalo nuevamente.'
   }
 }
 
@@ -181,7 +181,7 @@ export function CatalogPage() {
 
     const parsed = categoryFormSchema.safeParse(categoryForm)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá el formulario de categoría.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa el formulario de categoría.')
       return
     }
 
@@ -200,7 +200,7 @@ export function CatalogPage() {
   }
 
   const handleDeleteCategory = async (category: Category) => {
-    if (!window.confirm(`¿Seguro que querés borrar la categoría "${category.name}"?`)) {
+    if (!window.confirm(`¿Seguro que deseas borrar la categoría "${category.name}"?`)) {
       return
     }
 
@@ -229,7 +229,7 @@ export function CatalogPage() {
 
     const parsed = productFormSchema.safeParse(productForm)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá el formulario de producto.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa el formulario del producto.')
       return
     }
 
@@ -288,7 +288,7 @@ export function CatalogPage() {
             <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 2</p>
             <h2 className="mt-2 text-3xl font-semibold text-white">Catálogo, categorías y stock visible</h2>
             <p className="mt-2 max-w-3xl text-sm text-slate-400">
-              Acá vive el corazón del catálogo. Primero ordenás categorías y proveedores; después cargás productos sin tocar stock manualmente en edición. Eso se diseña bien desde la base o después explota.
+              Aquí se gestionan las categorías, proveedores y productos del catálogo con control de stock visible y edición segura.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-sm text-slate-300">
@@ -306,7 +306,7 @@ export function CatalogPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-xl font-semibold text-white">Categorías</h3>
-                <p className="mt-1 text-sm text-slate-400">ABM simple con nombre único. Si tiene productos, NO se borra. Y está perfecto que sea así.</p>
+                <p className="mt-1 text-sm text-slate-400">Registro y edición con nombre único. Si una categoría tiene productos asociados, no se puede eliminar.</p>
               </div>
               {editingCategory ? (
                 <button type="button" onClick={resetCategoryForm} className="rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800">
@@ -332,7 +332,7 @@ export function CatalogPage() {
             </form>
 
             <div className="mt-6 space-y-3">
-              {categories.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Todavía no hay categorías. Creá al menos una para habilitar el alta de productos.</p> : null}
+              {categories.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-700 px-4 py-5 text-sm text-slate-400">Aún no hay categorías. Crea al menos una para habilitar el registro de productos.</p> : null}
 
               {categories.map((category) => (
                 <article key={category.id} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">

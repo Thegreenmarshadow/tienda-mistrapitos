@@ -50,17 +50,17 @@ function getErrorMessage(error: string) {
     case 'validation_error':
       return 'Hay datos inválidos en el formulario de usuarios.'
     case 'username_taken':
-      return 'Ese nombre de usuario ya existe. Elegí otro.'
+      return 'Ese nombre de usuario ya existe. Elige otro.'
     case 'user_not_found':
-      return 'El usuario ya no existe. Recargá la lista.'
+      return 'El usuario ya no existe. Vuelve a cargar la lista.'
     case 'last_active_admin':
-      return 'No podés dejar al sistema sin un admin activo. Primero asegurate de que exista otro.'
+      return 'No puedes dejar el sistema sin un administrador activo. Primero asegúrate de que exista otro.'
     case 'forbidden':
       return 'Solo admin puede gestionar usuarios.'
     case 'unauthorized':
-      return 'La sesión expiró. Volvé a iniciar sesión.'
+      return 'La sesión expiró. Vuelve a iniciar sesión.'
     default:
-      return 'No se pudo guardar el usuario. Revisá los datos e intentá de nuevo.'
+      return 'No se pudo guardar el usuario. Revisa los datos e inténtalo de nuevo.'
   }
 }
 
@@ -128,7 +128,7 @@ export function UsersPage() {
             const parsed = updateUserSchema.safeParse({ name: userForm.name, role: userForm.role })
 
             if (!parsed.success) {
-              setError(parsed.error.issues[0]?.message ?? 'Revisá el formulario del usuario.')
+              setError(parsed.error.issues[0]?.message ?? 'Revisa el formulario del usuario.')
               return null
             }
 
@@ -142,7 +142,7 @@ export function UsersPage() {
             const parsed = createUserSchema.safeParse(userForm)
 
             if (!parsed.success) {
-              setError(parsed.error.issues[0]?.message ?? 'Revisá el formulario del usuario.')
+              setError(parsed.error.issues[0]?.message ?? 'Revisa el formulario del usuario.')
               return null
             }
 
@@ -194,7 +194,7 @@ export function UsersPage() {
 
     const parsed = resetUserPasswordSchema.safeParse(resetPasswordForm)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Revisá la nueva contraseña.')
+      setError(parsed.error.issues[0]?.message ?? 'Revisa la nueva contraseña.')
       return
     }
 
@@ -274,7 +274,7 @@ export function UsersPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 1</p>
         <h2 className="mt-2 text-3xl font-semibold text-white">Usuarios y permisos</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
-          Acá definís quién entra, qué rol tiene y si sigue activo. La seguridad mínima de un sistema no es opcional: si cualquiera toca todo, después el problema no es el software, es el criterio.
+          Aquí puedes definir quién accede al sistema, qué rol tiene y si su cuenta permanece activa.
         </p>
         {error ? <p className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{error}</p> : null}
         {feedback ? <p className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{feedback}</p> : null}
@@ -285,11 +285,11 @@ export function UsersPage() {
           <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xl font-semibold text-white">{editingUser ? 'Editar usuario' : 'Alta de usuario'}</h3>
+                <h3 className="text-xl font-semibold text-white">{editingUser ? 'Editar usuario' : 'Registro de usuario'}</h3>
                 <p className="mt-1 text-sm text-slate-400">
                   {editingUser
-                    ? 'Podés corregir nombre y rol. El username queda fijo para no romper el acceso.'
-                    : 'Creá admins, vendedores o usuarios de stock con una contraseña inicial.'}
+                    ? 'Puedes actualizar el nombre y el rol. El nombre de usuario permanece fijo para conservar el acceso.'
+                    : 'Crea administradores, vendedores o usuarios de inventario con una contraseña inicial.'}
                 </p>
               </div>
               {editingUser ? (
@@ -356,7 +356,7 @@ export function UsersPage() {
           {editingUser ? (
             <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
               <h3 className="text-xl font-semibold text-white">Reset de contraseña</h3>
-              <p className="mt-1 text-sm text-slate-400">Definí una nueva clave temporal. El usuario la tendrá que cambiar en su próximo ingreso.</p>
+              <p className="mt-1 text-sm text-slate-400">Define una nueva contraseña temporal. El usuario deberá cambiarla en su próximo ingreso.</p>
 
               <form className="mt-5 space-y-3" onSubmit={handleResetPassword}>
                 <label className="block space-y-2 text-sm text-slate-300">
@@ -377,7 +377,7 @@ export function UsersPage() {
                     value={resetPasswordForm.confirmPassword}
                     onChange={(event) => setResetPasswordForm((current) => ({ ...current, confirmPassword: event.target.value }))}
                     className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
-                    placeholder="Repetí la contraseña"
+                    placeholder="Repite la contraseña"
                   />
                 </label>
 
@@ -391,7 +391,7 @@ export function UsersPage() {
 
         <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
           <h3 className="text-xl font-semibold text-white">Listado de usuarios</h3>
-          <p className="mt-1 text-sm text-slate-400">El último admin activo no se puede desactivar ni convertir a otro rol. Esa es la línea roja mínima.</p>
+          <p className="mt-1 text-sm text-slate-400">El último administrador activo no se puede desactivar ni convertir a otro rol.</p>
 
           <div className="mt-5 overflow-hidden rounded-3xl border border-slate-800">
             <div className="grid grid-cols-[1.2fr_1.1fr_0.8fr_0.9fr_1fr] gap-3 bg-slate-950/90 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
@@ -403,7 +403,7 @@ export function UsersPage() {
             </div>
 
             {loading ? <p className="px-4 py-6 text-sm text-slate-400">Cargando usuarios...</p> : null}
-            {!loading && users.length === 0 ? <p className="px-4 py-6 text-sm text-slate-400">Todavía no hay usuarios cargados.</p> : null}
+            {!loading && users.length === 0 ? <p className="px-4 py-6 text-sm text-slate-400">Aún no hay usuarios registrados.</p> : null}
 
             <div className="divide-y divide-slate-800 bg-slate-900/60">
               {users.map((targetUser) => (
