@@ -64,7 +64,7 @@ export function AppLayout() {
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.3em] text-emerald-400">Mis Trapitos POS</p>
             <h1 className="text-2xl font-semibold">Operación offline</h1>
-            <p className="text-sm text-slate-400">Una sola PC, SQLite local y roles definidos para cada operación.</p>
+            <p className="text-sm text-slate-400">Tienda mis trapitos para cliente ricardo garcia</p>
           </div>
 
           <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
@@ -110,11 +110,11 @@ export function AppLayout() {
           <header className="border-b border-slate-800 bg-slate-950/80 px-6 py-4 backdrop-blur">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm text-slate-400">Fases 1, 2, 3, 4, 5 y 6 en evolución</p>
+                <p className="text-sm text-slate-400">interfaz de usurios</p>
                 <h2 className="text-xl font-semibold">Operación offline con ventas, auditoría y reportes básicos</h2>
               </div>
               <div className="rounded-full border border-slate-800 px-4 py-2 text-sm text-slate-300">
-                Main process + SQLite + IPC por dominio
+                Proceso principal
               </div>
             </div>
           </header>

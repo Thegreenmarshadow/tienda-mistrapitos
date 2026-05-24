@@ -182,7 +182,7 @@ export function OffersPage() {
   return (
     <div className="space-y-6">
       <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
-        <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 5</p>
+        <p className="text-sm uppercase tracking-[0.3em] text-emerald-400"></p>
         <h2 className="mt-2 text-3xl font-semibold text-white">Ofertas automáticas</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
           Configura descuentos con vigencia definida para que el sistema los aplique automáticamente durante la venta.

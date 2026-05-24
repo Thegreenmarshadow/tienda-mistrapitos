@@ -285,7 +285,7 @@ export function CatalogPage() {
       <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 2</p>
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-400"></p>
             <h2 className="mt-2 text-3xl font-semibold text-white">Catálogo, categorías y stock visible</h2>
             <p className="mt-2 max-w-3xl text-sm text-slate-400">
               Aquí se gestionan las categorías, proveedores y productos del catálogo con control de stock visible y edición segura.

@@ -82,7 +82,7 @@ export function LoginPage() {
               Acceso local con roles definidos y control de operación.
             </h1>
             <p className="max-w-lg text-lg text-slate-300">
-              Electron + React + SQLite para operar sin conexión en una sola computadora.
+              Electron + React + SQLite.
             </p>
           </div>
         </div>

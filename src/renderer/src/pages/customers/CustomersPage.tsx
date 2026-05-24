@@ -186,7 +186,7 @@ export function CustomersPage() {
   return (
     <div className="space-y-6">
       <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
-        <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">Fase 3</p>
+        <p className="text-sm uppercase tracking-[0.3em] text-emerald-400"></p>
         <h2 className="mt-2 text-3xl font-semibold text-white">Clientes e historial comercial</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
           Registra clientes y consulta su historial de compras en un solo lugar para dar seguimiento a la relación comercial.
